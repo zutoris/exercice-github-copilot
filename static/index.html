@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="fr">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width,initial-scale=1" />
+	<title>Mergington High — Activités</title>
+	<style>
+		:root{
+			--bg:#f6f8fb;
+			--card:#ffffff;
+			--muted:#6b7280;
+			--accent:#2563eb;
+			--glass: rgba(37,99,235,0.06);
+		}
+		body{
+			font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+			background: linear-gradient(180deg, var(--bg), #ffffff);
+			color:#111827;
+			margin:0;
+			padding:2rem;
+		}
+		.container{
+			max-width:1100px;
+			margin:0 auto;
+		}
+		header{
+			margin-bottom:1.25rem;
+		}
+		h1{ margin:0 0 .25rem 0; font-size:1.5rem; }
+		p.lead{ margin:0; color:var(--muted); }
+
+		.grid{
+			display:grid;
+			gap:1rem;
+			grid-template-columns: repeat(auto-fill, minmax(280px,1fr));
+			margin-top:1.25rem;
+		}
+		.card{
+			background:var(--card);
+			border-radius:10px;
+			padding:1rem;
+			box-shadow: 0 6px 20px rgba(15,23,42,0.06);
+			border:1px solid rgba(15,23,42,0.04);
+			transition: transform .14s ease, box-shadow .14s ease;
+			overflow:hidden;
+		}
+		.card:hover{ transform: translateY(-6px); box-shadow: 0 14px 40px rgba(15,23,42,0.08); }
+		.card h2{ margin:.1rem 0 .4rem 0; font-size:1.1rem; color:var(--accent); }
+		.meta{ color:var(--muted); font-size:.9rem; margin-bottom:.6rem; }
+		.description{ margin:0 0 .8rem 0; color:#374151; font-size:.95rem; }
+
+		.participants{
+			background: linear-gradient(90deg, var(--glass), rgba(0,0,0,0.01));
+			padding:.6rem;
+			border-radius:8px;
+			border:1px solid rgba(37,99,235,0.06);
+		}
+		.participants h3{ margin:0 0 .5rem 0; font-size:.95rem; display:flex; justify-content:space-between; align-items:center; }
+		.participants ul{ margin:0; padding-left:1.2rem; color:#111827; }
+		.participants li{ margin:.25rem 0; font-size:.9rem; }
+		.participants .none{ color:var(--muted); font-size:.9rem; margin:0; }
+
+		.footer-note{ margin-top:1rem; color:var(--muted); font-size:.85rem; text-align:center; }
+		@media (max-width:420px){ body{ padding:1rem } }
+	</style>
+</head>
+<body>
+	<div class="container">
+		<header>
+			<h1>Activités extrascolaires</h1>
+			<p class="lead">Consultez les activités et voyez qui est déjà inscrit.</p>
+		</header>
+
+		<main>
+			<section id="activities" class="grid" aria-live="polite">
+				<!-- Les cartes d'activités seront insérées ici -->
+			</section>
+			<p class="footer-note">Les participants sont mis à jour en temps réel après inscription.</p>
+		</main>
+	</div>
+
+	<script>
+		// Petit utilitaire pour échapper le HTML (sécurité)
+		function escapeHtml(str){
+			if(!str) return '';
+			return String(str)
+				.replace(/&/g, '&amp;')
+				.replace(/</g, '&lt;')
+				.replace(/>/g, '&gt;')
+				.replace(/"/g, '&quot;')
+				.replace(/'/g, '&#39;');
+		}
+
+		async function loadActivities(){
+			try{
+				const res = await fetch('/activities');
+				if(!res.ok) throw new Error('Impossible de récupérer les activités');
+				const data = await res.json();
+				const container = document.getElementById('activities');
+				container.innerHTML = '';
+				Object.entries(data).forEach(([name, act]) => {
+					const card = document.createElement('article');
+					card.className = 'card';
+					const participants = Array.isArray(act.participants) ? act.participants : [];
+					card.innerHTML = `
+						<h2>${escapeHtml(name)}</h2>
+						<p class="meta">${escapeHtml(act.schedule)}</p>
+						<p class="description">${escapeHtml(act.description)}</p>
+						<div class="participants" aria-label="Participants pour ${escapeHtml(name)}">
+							<h3>Participants <small style="color:var(--muted); font-weight:400">(${participants.length})</small></h3>
+							${participants.length ? '<ul>' + participants.map(p => `<li>${escapeHtml(p)}</li>`).join('') + '</ul>' : '<p class="none">Aucun participant pour le moment</p>'}
+						</div>
+					`;
+					container.appendChild(card);
+				});
+			}catch(err){
+				console.error(err);
+				document.getElementById('activities').innerHTML = '<p style="color:#b91c1c">Erreur lors du chargement des activités.</p>';
+			}
+		}
+
+		document.addEventListener('DOMContentLoaded', loadActivities);
+		// Optionnel: rafraîchir automatiquement toutes les 30s pour voir les nouveaux inscrits
+		setInterval(loadActivities, 30000);
+	</script>
+</body>
+</html>

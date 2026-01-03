@@ -40,43 +40,6 @@ activities = {
         "participants": ["john@mergington.edu", "olivia@mergington.edu"]
     }
 }
-,
-    "Basketball Team": {
-        "description": "Competitive basketball team for intramural and varsity play",
-        "schedule": "Mondays and Wednesdays, 4:00 PM - 5:30 PM",
-        "max_participants": 15,
-        "participants": ["alex@mergington.edu"]
-    },
-    "Tennis Club": {
-        "description": "Learn tennis skills and participate in friendly matches",
-        "schedule": "Saturdays, 10:00 AM - 11:30 AM",
-        "max_participants": 16,
-        "participants": ["sarah@mergington.edu"]
-    },
-    "Drama Club": {
-        "description": "Perform in theatrical productions and develop acting skills",
-        "schedule": "Wednesdays, 3:30 PM - 5:00 PM",
-        "max_participants": 25,
-        "participants": ["grace@mergington.edu", "lucas@mergington.edu"]
-    },
-    "Art Studio": {
-        "description": "Painting, drawing, and sculpture with professional instructors",
-        "schedule": "Tuesdays and Thursdays, 4:00 PM - 5:30 PM",
-        "max_participants": 18,
-        "participants": ["ava@mergington.edu"]
-    },
-    "Debate Team": {
-        "description": "Develop public speaking and argumentation skills through competitive debate",
-        "schedule": "Mondays and Thursdays, 3:30 PM - 5:00 PM",
-        "max_participants": 12,
-        "participants": ["marcus@mergington.edu", "isabella@mergington.edu"]
-    },
-    "Science Club": {
-        "description": "Explore STEM topics through experiments and projects",
-        "schedule": "Fridays, 3:30 PM - 5:00 PM",
-        "max_participants": 20,
-        "participants": ["ryan@mergington.edu"]
-    }
 
 
 @app.get("/")
@@ -98,7 +61,7 @@ def signup_for_activity(activity_name: str, email: str):
 
     # Get the specific activity
     activity = activities[activity_name]
-
+    
     # Validate student is not already signed up
     if email in activity["participants"]:
         raise HTTPException(status_code=400, detail="Student already signed up for this activity")
